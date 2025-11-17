@@ -1,0 +1,48 @@
+@keyframes scroll {
+    0% {background-position-x: 0px;}
+    100% {background-position-x: -1920px;}
+}
+
+.layer{
+    min-height: 500px;
+    width: 100%;
+    height: 100%;
+    position: absolute;
+    top: 0;
+    left: 0;
+    background-repeat: repeat-x;
+    background-size: cover; 
+}
+.layer-8{
+    background-image: url("img/sky8.png");
+    animation: scroll 15s infinite linear;
+}
+.layer-7{
+    background-image: url("img/rocks7.png");
+    animation: scroll 13s infinite linear;
+}
+.layer-6{
+    background-image: url("img/plant6.png");
+    animation: scroll 11s infinite linear;
+}
+.layer-5{
+    background-image: url("img/ground_5.png");
+    animation: scroll 9s infinite linear;
+}
+.layer-4{
+    background-image: url("img/ground_4.png");
+    animation: scroll 7s infinite linear;
+}
+.layer-3{
+    background-image: url("img/ground_3.png");
+    animation: scroll 5s infinite linear;
+}
+.layer-2{
+    background-image: url("img/clouds_2.png");
+    animation: scroll 3s infinite linear;
+}
+.layer-1{
+    background-image: url("img/clouds_1.png");
+    animation: scroll 1s infinite linear;
+}
+
