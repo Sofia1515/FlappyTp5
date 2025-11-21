@@ -1,7 +1,18 @@
 @keyframes scroll {
     0% {background-position-x: 0px;}
-    100% {background-position-x: -1920px;}
+    100% {background-position-x: -1366px;}
 }
+
+.flyingBird {
+    position: absolute;
+    width: 32px;     /* ancho de un frame */
+    height: 32px;    /* alto del sprite */
+    background-image: url("img/img_batman/sprites.png");
+    background-repeat: no-repeat;
+    background-size: 96px 32px; /* 3 frames */
+    z-index: 5; /* detrás del pájaro jugador */
+}
+
 
 .layer{
     min-height: 500px;
@@ -10,8 +21,9 @@
     position: absolute;
     top: 0;
     left: 0;
+    z-index: 1;
     background-repeat: repeat-x;
-    background-size: cover; 
+    background-size: 1366px 640px;
 }
 .layer-8{
     background-image: url("img/sky8.png");
@@ -39,10 +51,98 @@
 }
 .layer-2{
     background-image: url("img/clouds_2.png");
-    animation: scroll 3s infinite linear;
+    animation: scroll 12s infinite linear;
 }
 .layer-1{
     background-image: url("img/clouds_1.png");
-    animation: scroll 1s infinite linear;
+    animation: scroll 13s infinite linear;
+}
+
+body {
+    margin: 0;
+    overflow: hidden;
+    background: #70c5ce;
+}
+
+#hud {
+    position: absolute;
+    top: 10px;
+    left: 50%;
+    transform: translateX(-50%);
+    z-index: 999;
+    display: flex;
+    gap: 20px;
+    padding: 10px 20px;
+    background: rgba(0,0,0,0.35);
+    color: white;
+    font-size: 22px;
+    font-family: "Arial", sans-serif;
+    font-weight: bold;
+    border-radius: 12px;
+    backdrop-filter: blur(4px);
+    border: 2px solid rgba(255,255,255,0.4);
+    box-shadow: 0px 3px 10px rgba(0,0,0,0.4);
+}
+
+#hud div {
+    display: flex;
+    align-items: center;
+}
+
+/* Explosión al chocar */
+@keyframes explode {
+    0% { transform: scale(1); opacity: 1; }
+    100% { transform: scale(2); opacity: 0; }
+}
+
+.birdExplode {
+    animation: explode 0.4s forwards;
+}
+
+.explosion-element { /*explocion de forma absoluta y nodifiera con el juego*/
+    position: absolute;
+    z-index: 20;
+    pointer-events: none; 
+}
+
+#gameArea {
+    width: 480px;
+    height: 640px;
+    margin: 0 auto;
+    position: relative;
+    z-index: 10;
+    overflow: hidden;
+    background: transparent;
+}
+
+#bird {
+    position: absolute;
+    width: 40px;
+    height: 35px;
+    left: 80px;
+    top: 200px;
+    background-image: url("img/img_batman/bat-bird.jpg");
+    background-size: cover; /* 40px × 3 frames */
+    background-position: center;
+    background-repeat: no-repeat;
+    border-radius: 50%;
+    overflow: hidden;
+    z-index: 9999;
+    will-change: transform;  /*evita titileo */
+}
+
+.pipe {
+    position: absolute;
+    width: 80px;
+    background: green;
+    z-index: 12;
+}
+
+.topPipe {
+    top: 0;
+}
+
+.bottomPipe {
+    bottom: 0;
 }
 

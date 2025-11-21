@@ -1,12 +1,14 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="es">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Document</title>
+    <title>Flappy TP5</title>
     <link rel="stylesheet" href="style.css">
 </head>
 <body>
+
+    <div class="content">
     <div class="layer layer-8"></div>
     <div class="layer layer-7"></div>
     <div class="layer layer-6"></div>
@@ -15,6 +17,21 @@
     <div class="layer layer-3"></div>
     <div class="layer layer-2"></div>
     <div class="layer layer-1"></div>
-    
+    </div>
+
+    <div id="hud">
+        <div id="lives">Vidas x3</div>
+        <div id="score">Puntaje: 0</div>
+    </div>
+
+
+    <!-- CONTENEDOR DEL JUEGO (reemplaza canvas) -->
+    <div id="gameArea">
+        <div id="bird"></div>
+        <div id="birdsContainer"></div>
+
+    </div>
+
+    <script src="game.js"></script>
 </body>
 </html>
