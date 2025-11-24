@@ -1,20 +1,14 @@
 @keyframes scroll {
-    0% {background-position-x: 0px;}
-    100% {background-position-x: -1366px;}
+    0% {
+        background-position-x: 0px;
+    }
+
+    100% {
+        background-position-x: -1366px;
+    }
 }
 
-.flyingBird {
-    position: absolute;
-    width: 32px;     /* ancho de un frame */
-    height: 32px;    /* alto del sprite */
-    background-image: url("img/img_batman/sprites.png");
-    background-repeat: no-repeat;
-    background-size: 96px 32px; /* 3 frames */
-    z-index: 5; /* detrás del pájaro jugador */
-}
-
-
-.layer{
+.layer {
     min-height: 500px;
     width: 100%;
     height: 100%;
@@ -25,35 +19,43 @@
     background-repeat: repeat-x;
     background-size: 1366px 640px;
 }
-.layer-8{
+
+.layer-8 {
     background-image: url("img/sky8.png");
     animation: scroll 15s infinite linear;
 }
-.layer-7{
+
+.layer-7 {
     background-image: url("img/rocks7.png");
     animation: scroll 13s infinite linear;
 }
-.layer-6{
+
+.layer-6 {
     background-image: url("img/plant6.png");
     animation: scroll 11s infinite linear;
 }
-.layer-5{
+
+.layer-5 {
     background-image: url("img/ground_5.png");
     animation: scroll 9s infinite linear;
 }
-.layer-4{
+
+.layer-4 {
     background-image: url("img/ground_4.png");
     animation: scroll 7s infinite linear;
 }
-.layer-3{
+
+.layer-3 {
     background-image: url("img/ground_3.png");
     animation: scroll 5s infinite linear;
 }
-.layer-2{
+
+.layer-2 {
     background-image: url("img/clouds_2.png");
     animation: scroll 12s infinite linear;
 }
-.layer-1{
+
+.layer-1 {
     background-image: url("img/clouds_1.png");
     animation: scroll 13s infinite linear;
 }
@@ -73,15 +75,15 @@ body {
     display: flex;
     gap: 20px;
     padding: 10px 20px;
-    background: rgba(0,0,0,0.35);
+    background: rgba(0, 0, 0, 0.35);
     color: white;
     font-size: 22px;
     font-family: "Arial", sans-serif;
     font-weight: bold;
     border-radius: 12px;
     backdrop-filter: blur(4px);
-    border: 2px solid rgba(255,255,255,0.4);
-    box-shadow: 0px 3px 10px rgba(0,0,0,0.4);
+    border: 2px solid rgba(255, 255, 255, 0.4);
+    box-shadow: 0px 3px 10px rgba(0, 0, 0, 0.4);
 }
 
 #hud div {
@@ -90,19 +92,51 @@ body {
 }
 
 /* Explosión al chocar */
-@keyframes explode {
-    0% { transform: scale(1); opacity: 1; }
-    100% { transform: scale(2); opacity: 0; }
+/* Overlay que cubre toda el área de juego */
+#hitFlash {
+    position: absolute;
+    left: 25%;
+    width: 20%;
+    height: 20%;
+    pointer-events: none;
+    opacity: 0;
+    z-index: 9000;
+    mix-blend-mode: screen; /* hace que el blanco se mezcle como flash */
+    background: radial-gradient(circle, rgba(255,255,255,0.9) 0%, rgba(255,255,255,0) 70%);
 }
 
-.birdExplode {
-    animation: explode 0.4s forwards;
+/* Animación del flash y polvo */
+@keyframes hitEffect {
+    0% {
+        opacity: 0.9;
+        transform: scale(1);
+        filter: blur(0px);
+    }
+    30% {
+        opacity: 1;
+        transform: scale(1.1);
+    }
+    70% {
+        opacity: 0.4;
+        transform: scale(1.3);
+        filter: blur(2px);
+    }
+    100% {
+        opacity: 0;
+        transform: scale(1.5);
+        filter: blur(4px);
+    }
 }
 
-.explosion-element { /*explocion de forma absoluta y nodifiera con el juego*/
+.flashActive {
+    animation: hitEffect 0.35s ease-out forwards;
+}
+
+.explosion-element {
+    /*explocion de forma absoluta y nodifiera con el juego*/
     position: absolute;
     z-index: 20;
-    pointer-events: none; 
+    pointer-events: none;
 }
 
 #gameArea {
@@ -115,34 +149,136 @@ body {
     background: transparent;
 }
 
+@keyframes fly {
+
+    0% {
+        background-position: 0
+    }
+
+    100% {
+        background-position: -436px
+    }
+}
+
+
 #bird {
     position: absolute;
-    width: 40px;
-    height: 35px;
-    left: 80px;
-    top: 200px;
-    background-image: url("img/img_batman/bat-bird.jpg");
-    background-size: cover; /* 40px × 3 frames */
+    width: 109px;
+    height: 54px;
+    margin: auto;
+    background: url(img/img_batman/batmanSS.png) repeat-x;
+    animation: fly .8s steps(4) infinite;
     background-position: center;
     background-repeat: no-repeat;
+    left: 80px;
+    top: 200px;
     border-radius: 50%;
     overflow: hidden;
     z-index: 9999;
-    will-change: transform;  /*evita titileo */
+    will-change: transform;
+    /*evita titileo */
 }
-
 .pipe {
     position: absolute;
     width: 80px;
-    background: green;
+
     z-index: 12;
 }
 
 .topPipe {
+    background: url(img/pipe2.png);
+    background-position: bottom;
     top: 0;
 }
 
 .bottomPipe {
+    background: url(img/pipe.png);
     bottom: 0;
 }
 
+.hidden {
+    display: none;
+}
+
+/*GAME OVER*/
+#gameOverMsg {
+    position: absolute;
+    left: 50%;
+    top: 45%;
+    transform: translate(-50%, -50%);
+    font-family: 'Impact', 'Arial Black', sans-serif;
+    font-size: 38px;
+    color: #ff1c1c;
+    text-align: center;
+    text-transform: uppercase;
+    letter-spacing: 4px;
+    padding: 25px 40px;
+    border-radius: 16px;
+
+    background: rgba(0, 0, 0, 0.55);
+    border: 3px solid rgba(255, 80, 80, 0.8);
+    backdrop-filter: blur(6px);
+
+    box-shadow:
+        0 0 20px rgba(255, 0, 0, 0.8),
+        0 0 50px rgba(255, 0, 0, 0.5);
+
+    opacity: 0;
+    scale: 0.8;
+    z-index: 99999;
+
+    /* Animación default apagada */
+    animation: none;
+}
+
+@keyframes gameOverPop {
+    0% {
+        opacity: 0;
+        transform: translate(-50%, -50%) scale(0.5);
+        filter: blur(2px);
+    }
+    60% {
+        opacity: 1;
+        transform: translate(-50%, -50%) scale(1.15);
+        filter: blur(0px);
+    }
+    100% {
+        opacity: 1;
+        transform: translate(-50%, -50%) scale(1);
+    }
+}
+
+.hidden {
+    display: none !important;
+}
+
+/*VIDA*/
+.lifeItem {
+    position: absolute;
+    width: 40px;
+    height: 40px;
+    background: url("img/heart.png") no-repeat center/contain;
+    z-index: 15;
+    animation: spin 0.8s linear infinite;
+}
+
+@keyframes spin {
+    0% { transform: rotate(0deg) scale(1); }
+    50% { transform: rotate(180deg) scale(1.2); }
+    100% { transform: rotate(360deg) scale(1); }
+}
+
+@keyframes lifePop {
+    0% { transform: scale(1); opacity: 1; }
+    100% { transform: scale(2); opacity: 0; }
+}
+
+.lifePopEffect {
+    position: absolute;
+    width: 40px;
+    height: 40px;
+    background: url("img/heart.png") center/contain no-repeat;
+    pointer-events: none;
+    z-index: 999;
+    animation: lifePop 0.3s forwards;
+}

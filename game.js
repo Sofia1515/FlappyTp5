@@ -10,18 +10,21 @@ const PIPE_WIDTH = 60;
 // BIRD
 // ==========================
 let bird = {
-    x: 80,
+    x: 60,
     y: 200,
-    width: 40,
-    height: 30,
+    width: 80,
+    height: 40,
     dy: 0
 };
 
-let gravity = 0.35;
-let jumpForce = -7;
+let gravity = 0.2;
+let jumpForce = -5;
 let gameSpeed = 2;
 
+
 let pipes = [];
+let lifeItems = [];
+let pipesSpawned = 0;
 let frame = 0;
 let score = 0;
 let lives = 3;
@@ -31,6 +34,12 @@ let flyingBirds = [];
 // Asegurar posición inicial del bird en el DOM
 birdDiv.style.left = bird.x + "px";
 birdDiv.style.top = bird.y + "px";
+
+const gameOverMsg = document.createElement("div");
+gameOverMsg.id = "gameOverMsg";
+gameOverMsg.classList.add("hidden");
+
+gameArea.appendChild(gameOverMsg);
 
 // ==========================
 // CONTROLES
@@ -55,7 +64,7 @@ function jump() {
 // TUBERÍAS
 // ==========================
 function spawnPipe() {
-    const gap = 140;
+    const gap = 200;
     const minTop = 50;
     const maxTop = GAME_HEIGHT - gap - 50;
     const topHeight = Math.floor(Math.random() * (maxTop - minTop + 1)) + minTop;
@@ -78,15 +87,68 @@ function spawnPipe() {
     gameArea.appendChild(topPipe);
     gameArea.appendChild(bottomPipe);
 
-    pipes.push({
+    const pipeObj = {
         x: pipeX,
         topHeight: topHeight,
         bottomY: topHeight + gap,
         topPipe,
         bottomPipe
-    });
+    };
+
+    pipes.push(pipeObj);
+
+    // cada 5 pipes → spawn vida
+    pipesSpawned++;
+    if (pipesSpawned % 5 === 0) {
+        spawnLifeItem(pipeObj);
+    }
 }
 
+// ==========================
+// VIDAS
+// ==========================
+function spawnLifeItem(pipe) {
+    const item = document.createElement("div");
+    item.className = "lifeItem";
+
+    // Zona del hueco
+    const gapTop = pipe.topHeight;
+    const gapBottom = pipe.bottomY;
+
+    // Elije si va arriba o abajo
+    const zone = Math.random() < 0.5 ? "upper" : "lower";
+
+    let posY;   
+
+    if (zone === "upper") {
+        posY = gapTop + 20; // un poco debajo del techo del hueco
+    } else {
+        posY = gapBottom - 60; // un poco encima del piso del hueco
+    }
+
+    // Posición inicial a la derecha de la pantalla
+    item.style.left = pipe.x + "px";
+    item.style.top = posY + "px";
+
+    gameArea.appendChild(item);
+
+    lifeItems.push({
+        x: pipe.x,
+        y: posY,
+        width: 40,
+        height: 40,
+        div: item
+    });
+}
+function triggerLifePickupEffect() {
+    const pop = document.createElement("div");
+    pop.className = "lifePopEffect";
+    pop.style.left = (bird.x + 30) + "px";
+    pop.style.top = (bird.y + 10) + "px";
+    gameArea.appendChild(pop);
+
+    setTimeout(() => pop.remove(), 300);
+}   
 // ==========================
 // COLISIONES
 // ==========================
@@ -110,6 +172,19 @@ function checkCollision(pipe) {
     }
     return false;
 }
+function checkLifeCollision(item) {
+    const bx1 = bird.x;
+    const bx2 = bird.x + bird.width;
+    const by1 = bird.y;
+    const by2 = bird.y + bird.height;
+
+    const ix1 = item.x;
+    const ix2 = item.x + item.width;
+    const iy1 = item.y;
+    const iy2 = item.y + item.height;
+
+    return (bx2 > ix1 && bx1 < ix2 && by2 > iy1 && by1 < iy2);
+}
 
 // ==========================
 // ANIMACIÓN DEL BIRD (spritesheet)
@@ -129,24 +204,16 @@ function animateBird() {
 // EXPLOSIÓN
 // ==========================
 function triggerExplosion() {
-    const explosion = document.createElement("div");
-    explosion.className = "explosion-element birdExplode";
-    explosion.style.left = bird.x + "px";
-    explosion.style.top = bird.y + "px";
-    explosion.style.width = bird.width + "px";
-    explosion.style.height = bird.height + "px";
+    const bird = document.getElementById("bird");
+    const flash = document.getElementById("hitFlash");
+    bird.style.backgroundImage = 'url("img/img_batman/batmanColSS.png")';
 
-    // tomar la misma imagen usada por bird (si está en CSS, la obtenemos)
-    const computed = getComputedStyle(birdDiv);
-    if (computed && computed.backgroundImage) {
-        explosion.style.backgroundImage = computed.backgroundImage;
-        explosion.style.backgroundSize = computed.backgroundSize || `${bird.width * 3}px ${bird.height}px`;
-        explosion.style.backgroundPosition = computed.backgroundPosition || `${-birdFrame * bird.width}px 0px`;
-        explosion.style.backgroundRepeat = "no-repeat";
-    }
+    flash.classList.remove("flashActive");
+    void flash.offsetWidth;
+    flash.style.top = bird.style.top;
+    flash.classList.add("flashActive");
 
-    gameArea.appendChild(explosion);
-    setTimeout(() => explosion.remove(), 400);
+    setTimeout(() => bird.style.backgroundImage = 'url("img/img_batman/batmanSS.png")', 400);
 }
 
 // ==========================
@@ -168,6 +235,11 @@ function resetGame() {
     bird.dy = 0;
     gameOver = false;
     frame = 0;
+
+    gameOverMsg.classList.add("hidden");
+    gameOverMsg.style.animation = "none";
+
+    update();
 }
 
 // ==========================
@@ -176,20 +248,9 @@ function resetGame() {
 function update() {
     if (gameOver) {
         // mostrar mensaje simple en DOM (puedes mejorar visual más tarde)
-        if (!document.getElementById("gameOverMsg")) {
-            const msg = document.createElement("div");
-            msg.id = "gameOverMsg";
-            msg.style.position = "absolute";
-            msg.style.left = "50%";
-            msg.style.top = "45%";
-            msg.style.transform = "translate(-50%,-50%)";
-            msg.style.zIndex = 30;
-            msg.style.color = "red";
-            msg.style.fontSize = "28px";
-            msg.style.textAlign = "center";
-            msg.innerHTML = `GAME OVER<br>Reinicia el juego`;
-            gameArea.appendChild(msg);
-        }
+        gameOverMsg.innerHTML = 'GAME OVER<br>Puntuacion: ' + score + '<br>Toca para reiniciar el juego';
+        gameOverMsg.classList.remove("hidden");
+        gameOverMsg.style.animation = "gameOverPop 0.5s ease-out forwards";
         return;
     }
 
@@ -243,7 +304,34 @@ function update() {
             lives--;
             document.getElementById("lives").textContent = "Vidas x" + lives;
             if (lives <= 0) gameOver = true;
-            
+
+        }
+    }
+    
+    //mover items de vida
+    for (let i = lifeItems.length - 1; i >= 0; i--) {
+        let item = lifeItems[i];
+
+        item.x -= gameSpeed;
+        item.div.style.left = item.x + "px";
+
+        // fuera de pantalla
+        if (item.x < -40) {
+            item.div.remove();
+            lifeItems.splice(i, 1);
+            continue;
+        }
+
+        // colisión con bird
+        if (checkLifeCollision(item)) {
+            item.div.remove();
+            lifeItems.splice(i, 1);
+
+            lives++;
+            document.getElementById("lives").textContent = "Vidas x" + lives;
+
+            // animación opcional
+            triggerLifePickupEffect();
         }
     }
 
@@ -254,6 +342,7 @@ function update() {
 
     frame++;
     requestAnimationFrame(update);
+
 }
 function spawnFlyingBird() {
     const bird = document.createElement("div");
